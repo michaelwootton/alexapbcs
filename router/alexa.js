@@ -124,9 +124,9 @@ class AlexaIntegration {
         }
         session.set("userId", userId);
       }
-	    this.logger.info('Got locale : ', alexa_req.locale);
+	    this.logger.info('Got locale : ', alexa_req.data.request.locale);
       this.logger.info('qual a conversation total : ', JSON.stringify(alexa_req));
-      userlocale = alexa_req.locale;
+      userlocale = alexa_req.data.request.locale;
       // set initial channel to portuguese CHATBOT	
       var channeloc= {
         url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5',
@@ -155,7 +155,7 @@ class AlexaIntegration {
         var additionalProperties = {
           profile: {
             clientType: "alexa",
-			locale: userlocale
+			      locale: userlocale
           }
         };
         var sendToAlexa = (resolve) => {
