@@ -80,10 +80,6 @@ class AlexaIntegration {
   });
 
     
-  this.webhook
-  .on(WebhookEvent.ERROR, err => this.logger.error('Error:', err.message))
-  .on(WebhookEvent.MESSAGE_SENT, message => this.logger.info('Message to chatbot:', message));
-  
     // add webhook receiver at the configured endpoint '/messages'
     this.logger.info(`Bot webhook outbound messages: /alexa${this.endpoints.webhook}`);
     this.router.post('/bot/message/:locale', this.webhook.receiver((req, res) => {
