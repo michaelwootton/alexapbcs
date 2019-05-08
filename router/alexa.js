@@ -7,7 +7,7 @@ const PubSub = require('pubsub-js');
 // OracleBot SDK
 const OracleBot = require('@oracle/bots-node-sdk');
 const { WebhookClient } = OracleBot.Middleware;
-const { messageModelUtil, textUtil } = require('./lib/messageModel/messageModelUtil.js');
+const { messageModelUtil, textUtil } = require('../lib/messageModel/messageModelUtil.js');
 
 // configurations
 const Config = require('../config');
