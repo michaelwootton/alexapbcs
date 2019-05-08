@@ -80,7 +80,7 @@ class AlexaIntegration {
   });
 
     
-  webhook
+  this.webhook
   .on(WebhookEvent.ERROR, err => this.logger.error('Error:', err.message))
   .on(WebhookEvent.MESSAGE_SENT, message => this.logger.info('Message to chatbot:', message));
   
@@ -132,7 +132,7 @@ class AlexaIntegration {
     this.logger.info('qual a conversation total : ', JSON.stringify(alexa_req));
 	  
       alexa_res.shouldEndSession(false);
-      if (userId && command) {
+      if (userId && command) {  
         const userIdTopic = userId;
         var respondedToAlexa = false;
         var additionalProperties = {
