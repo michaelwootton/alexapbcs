@@ -1,0 +1,37 @@
+{
+  "name": "oda-custom-alexa",
+  "version": "1.0.0",
+  "description": "Custom channel integration with alexa",
+  "main": "app.js",
+  "engines": {
+    "node": ">=6.11.3",
+    "npm": ">=3.10.10"
+  },
+  "oracleMobile": {
+    "configuration": {
+      "node": "6.10"
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "start": "node index.js",
+    "test": "nyc jasmine",
+    "zip": "node ./zip.js"
+  },
+  "dependencies": {
+    "@oracle/bots-node-sdk": "^2.0.6",
+    "alexa-app": "^4.2.2",
+    "dotenv": "^6.0.0",
+    "express": "^4.15.4",
+    "pubsub-js": "^1.7.0",
+    "underscore": "^1.9.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.18.1",
+    "eslint-plugin-jasmine": "^2.9.2",
+    "jasmine": "^2.8.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "nyc": "^13.0.1",
+    "supertest": "^3.0.0"
+  }
+}

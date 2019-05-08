@@ -1,0 +1,18 @@
+{
+  "env": {
+    "AMZN_SKILL_ID": "amzn1.ask.skill.XXX",
+    "WEBHOOK_CHANNEL_URL": "https://.../connectors/...",
+    "WEBHOOK_SECRET": "XXX-YYY-ZZZ",
+    "WEBHOOK_WAIT_MS": 200
+  },
+  "routes": {
+    "cc": "/components",
+    "alexa": "/alexa"
+  },
+  "endpoints": {
+    "alexa": {
+      "skill": "app",
+      "webhook": "/messages"
+    }
+  }
+}
