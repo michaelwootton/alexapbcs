@@ -8,7 +8,7 @@ const PubSub = require('pubsub-js');
 const OracleBot = require('@oracle/bots-node-sdk');
 const { WebhookClient } = OracleBot.Middleware;
 const { messageModelUtil } = require('../lib/messageModel/messageModelUtil.js');
-const {textUtil} = OracleBot.Util;
+const {textUtil} = require('../lib/messageModel/textUtil.js');
 // configurations
 const Config = require('../config');
 var userlocale = '';
@@ -142,7 +142,7 @@ class AlexaIntegration {
         logger.info('Channel being used: ', channeloc);
       }
   // if Spanish - set channel to Spanish CHATBOT	
-      else if ((userlocale === 'es-ES') || (userlocale === 'es-MX')) {
+      else if ((userlocale === 'es-ES') || (userlocale === 'es-MX') || (userlocale === 'es-419')) {
         channeloc = {
           url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/26d19683-0bcd-4bbb-8d0e-f125529039ec',
            secret: 'Wv6cSP9yyGk9PAMoE6YxWGa1AWk3Eebz',

@@ -24,7 +24,8 @@
     "dotenv": "^6.0.0",
     "express": "^4.15.4",
     "pubsub-js": "^1.7.0",
-    "underscore": "^1.9.1"
+    "underscore": "^1.9.1",
+    "leven": "^3.1.0"
   },
   "devDependencies": {
     "eslint": "^4.18.1",
