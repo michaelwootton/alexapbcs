@@ -51,7 +51,7 @@ class AlexaIntegration {
     this.webhook = new WebhookClient({ 
     // determine the channel config on incoming request from ODA
     channel: (req) => {
-      console.log('Here', req.params);
+      logger.info('Here', req.params);
       const { locale } = req.params;
       var url = '';
       var secret = '';
@@ -61,14 +61,14 @@ class AlexaIntegration {
           // ...
            url = 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/26d19683-0bcd-4bbb-8d0e-f125529039ec';
            secret= 'Wv6cSP9yyGk9PAMoE6YxWGa1AWk3Eebz';
-           this.logger.info('Channel being used-ES : ', url);		  
+           logger.info('Channel being used-ES : ', url);		  
            break;
         }   
         case 'pt': {
           // ...
            url= 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5';
            secret= 'uqalyRoRzS1LvzorZCpu7BYANLzvYJ6T';
-           this.logger.info('Channel being used-PT : ', url);		  
+           logger.info('Channel being used-PT : ', url);		  
           break;
         }  
       }
@@ -81,13 +81,13 @@ class AlexaIntegration {
 
     
     // add webhook receiver at the configured endpoint '/messages'
-    this.logger.info(`Bot webhook outbound messages: /alexa${this.endpoints.webhook}`);
+    logger.info(`Bot webhook outbound messages: /alexa${this.endpoints.webhook}`);
     this.router.post('/bot/message/:locale', this.webhook.receiver((req, res) => {
       const { locale } = req.params;
 	  res.send(200);
       const body = req.body;
       const userId = body.userId;
-      this.logger.info("Publishing to", userId);
+      logger.info("Publishing to", userId);
       PubSub.publish(userId, body);
     }));
     return this;
@@ -108,7 +108,7 @@ class AlexaIntegration {
       waitForMoreResponsesMs: this.env.WEBHOOK_WAIT_MS,
     };
 
-    this.logger.info(`Alexa skill endpoint: /alexa/${this.endpoints.skill}`);
+    logger.info(`Alexa skill endpoint: /alexa/${this.endpoints.skill}`);
     this.alexa = new alexa.app(this.endpoints.skill);
 
     // code (mostly) included from alexa singleBot sample
@@ -124,8 +124,8 @@ class AlexaIntegration {
         }
         session.set("userId", userId);
       }
-	    this.logger.info('Got locale : ', alexa_req.data.request.locale);
-      this.logger.info('qual a conversation total : ', JSON.stringify(alexa_req));
+	    logger.info('Got locale : ', alexa_req.data.request.locale);
+      logger.info('qual a conversation total : ', JSON.stringify(alexa_req));
       userlocale = alexa_req.data.request.locale;
       // set initial channel to portuguese CHATBOT	
       var channeloc= {
@@ -214,11 +214,14 @@ class AlexaIntegration {
               } else {
                 sendToAlexa(resolve, reject);
               }
+              
             };
             // var token = PubSub.subscribe(userIdTopic, commandResponse);
             PubSub.subscribe(userIdTopic, commandResponse);
             // use webhook client to send
             const message = _.assign({ userId, messagePayload }, additionalProperties);
+            logger.info('Message sent to Chatbot: ', message);
+            logger.info('Channel used on send: ', channeloc);
             self.webhook.send(message, channeloc)
               .catch(err => {
                 logger.info("Failed sending message to Bot");
