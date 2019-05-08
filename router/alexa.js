@@ -51,7 +51,7 @@ class AlexaIntegration {
     this.webhook = new WebhookClient({ 
     // determine the channel config on incoming request from ODA
     channel: (req) => {
-      logger.info('Here', req.params);
+      this.logger.info('Here', req.params);
       const { locale } = req.params;
       var url = '';
       var secret = '';
