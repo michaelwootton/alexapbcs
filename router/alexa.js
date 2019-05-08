@@ -191,8 +191,9 @@ class AlexaIntegration {
           botMessages.push(respModel.messagePayload());
           session.set('botMessages', botMessages);
           session.set('botMenuResponseMap', Object.assign(botMenuResponseMap || {}, self.menuResponseMap(respModel.messagePayload())));
+          logger.info('Message to Alexa (antes de converter para texto):', respModel.messagePayload());
           let messageToAlexa = messageModelUtil.convertRespToText(respModel.messagePayload());
-          logger.info('Message to Alexa (navigable):', messageToAlexa)
+          logger.info('Message to Alexa (navigable):', messageToAlexa);
           alexa_res.say(messageToAlexa);
         };
 
