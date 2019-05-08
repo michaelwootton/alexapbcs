@@ -4,11 +4,13 @@ const _ = require('underscore');
 const alexa = require('alexa-app');
 const express = require('express');
 const PubSub = require('pubsub-js');
+const leven = require('leven');
 // OracleBot SDK
 const OracleBot = require('@oracle/bots-node-sdk');
 const { WebhookClient } = OracleBot.Middleware;
-const { messageModelUtil } = require('../lib/messageModel/messageModelUtil.js');
-const {textUtil} = require('../lib/messageModel/textUtil.js');
+// I took out this modules, and brought the function to the end of this code
+//const { messageModelUtil } = require('../lib/messageModel/messageModelUtil.js');
+//const {textUtil} = require('../lib/messageModel/textUtil.js');
 // configurations
 const Config = require('../config');
 var userlocale = '';
@@ -192,7 +194,7 @@ class AlexaIntegration {
           session.set('botMessages', botMessages);
           session.set('botMenuResponseMap', Object.assign(botMenuResponseMap || {}, self.menuResponseMap(respModel.messagePayload())));
           logger.info('Message to Alexa (antes de converter para texto):', respModel.messagePayload());
-          let messageToAlexa = messageModelUtil.convertRespToText(respModel.messagePayload());
+          let messageToAlexa = convertRespToText(respModel.messagePayload());
           logger.info('Message to Alexa (navigable):', messageToAlexa);
           alexa_res.say(messageToAlexa);
         };
@@ -256,7 +258,7 @@ class AlexaIntegration {
           if (typeof botMenuResponseMap !== 'object') {
             botMenuResponseMap = {};
           }
-          var menuResponse = textUtil.approxTextMatch(input, _.keys(botMenuResponseMap), true, true, .7);
+          var menuResponse = approxTextMatch(input, _.keys(botMenuResponseMap), true, true, .7);
           var botMessages = session.get('botMessages');
           //if command is a menu action
           if (menuResponse) {
@@ -300,7 +302,7 @@ class AlexaIntegration {
                 if (selectedMessage) {
                   //session.set('botMessages', [selectedMessage]);
                   session.set('botMenuResponseMap', self.menuResponseMap(selectedMessage, selectedCard));
-                  let messageToAlexa = messageModelUtil.cardToText(selectedCard, 'Card');
+                  let messageToAlexa = cardToText(selectedCard, 'Card');
                   logger.info('Message to Alexa (card):', messageToAlexa)
                   alexa_res.say(messageToAlexa);
                   return alexa_res.send();
@@ -319,7 +321,7 @@ class AlexaIntegration {
                 }, {}));
                 //session.set('botMenuResponseMap', menuResponseMap(returnMessage));
                 _.each(botMessages, function(msg){
-                  let messageToAlexa = messageModelUtil.convertRespToText(msg);
+                  let messageToAlexa = convertRespToText(msg);
                   logger.info('Message to Alexa (return from card):', messageToAlexa);
                   alexa_res.say(messageToAlexa);
                 })
@@ -461,3 +463,203 @@ module.exports = new AlexaIntegration({
   endpoints: Config.get('endpoints.alexa'),
   logger: Config.get('logger'),
 }).middleware();
+
+
+//functions that were in oraclebots/Util but I bought to here 
+// I took of the phrases telling there are options to choose
+
+function trailingPeriod(text) {
+  if (!text || (typeof text !== 'string')) {
+    return '';
+  }
+  return ((text.trim().endsWith('.') || text.trim().endsWith('?') || text.trim().endsWith(',')) ? text.trim() + ' ' : text.trim() + '. ');
+}
+
+function actionToText(action, actionPrefix) {
+  var actionText = (actionPrefix ? actionPrefix + ' ' : '');
+  if (action.label) {
+    return actionText + action.label;
+  }
+  else {
+    switch (action.type) {
+    case 'postback':
+      break;
+    case 'call':
+      actionText += 'Call the phone number ' + action.phoneNumber;
+      break;
+    case 'url':
+      actionText += 'Open the Url ' + action.url;
+      break;
+    case 'share':
+      actionText += 'Share the message';
+      break;
+    case 'location':
+      actionText += 'Share the location';
+      break;
+    default:
+      break;
+    }
+  }
+  return actionText;
+}
+
+function actionsToText(actions, prompt, actionPrefix) {
+/*  var actionsText = prompt || 'You can choose from the following actions: '; */
+  var actionsText = prompt || ' ';
+  actions.forEach(function (action, index) {
+    actionsText = actionsText + actionToText(action, actionPrefix);
+    if (index < actions.length - 1) {
+      actionsText = actionsText + ', ';
+    }
+  });
+  return trailingPeriod(actionsText);
+}
+
+function textMessageToText(resp) {
+  var result = "";
+  result = trailingPeriod(resp.text);
+  if (resp.actions && resp.actions.length > 0) {
+/*    result = result + actionsToText(resp.actions, 'You can choose from the following options: '); */
+    result = result + actionsToText(resp.actions, ' ');
+  }
+  if (resp.globalActions && resp.globalActions.length > 0) {
+/*    result = result + actionsToText(resp.globalActions, 'The following global actions are available: '); */
+    result = result + actionsToText(resp.globalActions, ' ');
+  }
+  return result;
+}
+
+/**
+ * utility function to derive a string representation of a card within a conversation message for use with speech or text based channels like Alexa and SMS.
+ * @function module:Util/MessageModel.cardToText
+ * @return {string} A string or speech representation of the card.
+ * @param {object} card - A card (as defined in Conversation Message Model)
+ * @param {string} [cardPrefix] - A string prefix used before the card content, for example 'Card'
+ */
+function cardToText(card, cardPrefix) {
+  var cardText = trailingPeriod((cardPrefix ? cardPrefix + ' ' : '') + card.title);
+  if (card.description) {
+    cardText = trailingPeriod(cardText + card.description);
+  }
+  if (card.actions && card.actions.length > 0) {
+    cardText = cardText + actionsToText(card.actions, 'The following actions are available for this card: ');
+    cardText = cardText + ' Or choose Return';
+  }
+  else {
+    cardText = cardText + ' You could choose Return';
+  }
+  return cardText;
+}
+
+function cardsSummaryToText(cards, prompt) {
+  var cardsText = prompt || 'You can choose from the following cards for more information: ';
+  cards.forEach(function (card, index) {
+    cardsText = cardsText + 'Card ' + card.title;
+    if (index < cards.length - 1) {
+      cardsText = cardsText + ', ';
+    }
+  });
+  return trailingPeriod(cardsText);
+}
+
+function cardMessageToText(resp) {
+  var result = "";
+  result = trailingPeriod(resp.text);
+  if (resp.cards && resp.cards.length > 0) {
+    result = result + cardsSummaryToText(resp.cards);
+  }
+  if (resp.actions && resp.actions.length > 0) {
+/*    result = result + actionsToText(resp.actions, 'The following options are available: '); */
+    result = result + actionsToText(resp.actions, ' ');
+  }
+  return trailingPeriod(result);
+}
+
+function attachmentMessageToText(resp) {
+  var result = "";
+  if (resp.actions && resp.actions.length > 0) {
+/*    result = result + actionsToText(resp.actions, 'You can choose from the following options: '); */
+    result = result + actionsToText(resp.actions, ' ');
+  }
+  if (resp.globalActions && resp.globalActions.length > 0) {
+/*    result = result + actionsToText(resp.globalActions, 'The following global actions are available: '); */
+    result = result + actionsToText(resp.globalActions, ' ');
+  }
+  return trailingPeriod(result);
+}
+/**
+ * utility function to derive a string representation of a Conversation Message for use with speech or text based channels like Alexa and SMS.
+ * @function module:Util/MessageModel.convertRespToText
+ * @return {string} A string or speech representation of the conversation message.
+ * @param {object} convMsg - A message conforming to Conversation Message Model.
+ */
+function convertRespToText(convMsg) {
+  var sentence = '';
+  if (convMsg.type) {
+    switch (convMsg.type) {
+    case 'text':
+      sentence = textMessageToText(convMsg);
+      break;
+    case 'card':
+      sentence = cardMessageToText(convMsg);
+      break;
+    case 'attachment':
+      sentence = attachmentMessageToText(convMsg);
+      break;
+    case 'location':
+      sentence = attachmentMessageToText(convMsg);
+      break;
+    }
+  }
+  return sentence;
+}
+
+
+function approxTextMatch(item, list, lowerCase, removeSpace, threshold) {
+  function preProcess(item) {
+    if (removeSpace) {
+      item = item.replace(/\s/g, '');
+    }
+    if (lowerCase) {
+      item = item.toLowerCase();
+    }
+    return item;
+  }
+  var matched = false;
+  var matchedItem = null;
+  var itemProcessed = preProcess(item);
+  var result = list.map(function (listItem) {
+    var listItemProcessed = preProcess(listItem);
+    if (itemProcessed === listItemProcessed) {
+      matchedItem = {
+        exactMatch: true,
+        similarity: 1,
+        item: listItem
+      };
+      matched = true;
+      return matchedItem;
+    }
+    const L = Math.max(itemProcessed.length, listItemProcessed.length);
+    const similarity = (L - leven(itemProcessed, listItemProcessed)) / L;
+    return {
+      similarity,
+      exactMatch: false,
+      item: listItem
+    };
+  });
+  if (!matched) {
+    // console.log(result);
+    matchedItem = result.reduce((prev, current) => {
+      return ((prev && current.similarity > prev.similarity) ? current : prev) || current;
+    }, null);
+    if (matchedItem && matchedItem.similarity >= (threshold)) {
+      return matchedItem;
+    }
+    else {
+      return null;
+    }
+  }
+  else {
+    return matchedItem;
+  }
+}
