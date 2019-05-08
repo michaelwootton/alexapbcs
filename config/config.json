@@ -12,7 +12,7 @@
   "endpoints": {
     "alexa": {
       "skill": "app",
-      "webhook": "/messages"
+      "webhook": "/message"
     }
   }
 }

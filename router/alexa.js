@@ -1,7 +1,7 @@
 
 // third party
-const _ = require("underscore");
-const alexa = require("alexa-app");
+const _ = require('underscore');
+const alexa = require('alexa-app');
 const express = require('express');
 const PubSub = require('pubsub-js');
 // OracleBot SDK
@@ -81,13 +81,13 @@ class AlexaIntegration {
 
     
     // add webhook receiver at the configured endpoint '/messages'
-    this.logger.info(`Bot webhook outbound messages: /alexa${this.endpoints.webhook}`);
-    this.router.post('/bot/message/:locale', this.webhook.receiver((req, res) => {
+    this.logger.info('Bot webhook outbound messages: /alexa${this.endpoints.webhook}');
+    this.router.post('/message/:locale', this.webhook.receiver((req, res) => {
       const { locale } = req.params;
 	  res.send(200);
       const body = req.body;
       const userId = body.userId;
-      this.logger.info("Publishing to", userId);
+      this.logger.info('Publishing to', userId);
       PubSub.publish(userId, body);
     }));
     return this;
@@ -112,17 +112,17 @@ class AlexaIntegration {
     this.alexa = new alexa.app(this.endpoints.skill);
 
     // code (mostly) included from alexa singleBot sample
-    this.alexa.intent("CommandBot", {}, (alexa_req, alexa_res) => {
-      var command = alexa_req.slot("command");
+    this.alexa.intent('CommandBot', {}, (alexa_req, alexa_res) => {
+      var command = alexa_req.slot('command');
       var session = alexa_req.getSession();
-      let userId = session.get("userId");
+      let userId = session.get('userId');
       if (!userId) {
         //userId = session.details.userId;
         userId = session.details.user.userId;
         if (!userId) {
           userId = self.randomIntInc(1000000, 9999999).toString();
         }
-        session.set("userId", userId);
+        session.set('userId', userId);
       }
 	    logger.info('Got locale : ', alexa_req.data.request.locale);
       logger.info('qual a conversation total : ', JSON.stringify(alexa_req));
@@ -154,7 +154,7 @@ class AlexaIntegration {
         var respondedToAlexa = false;
         var additionalProperties = {
           profile: {
-            clientType: "alexa",
+            clientType: 'alexa',
 			      locale: userlocale
           }
         };
@@ -166,7 +166,7 @@ class AlexaIntegration {
             resolve();
             PubSub.unsubscribe(userIdTopic);
           } else {
-            logger.info("Already sent response");
+            logger.info('Already sent response');
           }
         };
           // compose text response to alexa, and also save botMessages and botMenuResponseMap to alexa session so they can be used to control menu responses next
@@ -178,19 +178,19 @@ class AlexaIntegration {
             // handle 1.0 webhook format as well
             respModel = new MessageModel(resp);
           }
-          var botMessages = session.get("botMessages");
+          var botMessages = session.get('botMessages');
           if (!Array.isArray(botMessages)) {
             botMessages = [];
           }
-          var botMenuResponseMap = session.get("botMenuResponseMap");
+          var botMenuResponseMap = session.get('botMenuResponseMap');
           if (typeof botMenuResponseMap !== 'object') {
             botMenuResponseMap = {};
           }
           botMessages.push(respModel.messagePayload());
-          session.set("botMessages", botMessages);
-          session.set("botMenuResponseMap", Object.assign(botMenuResponseMap || {}, self.menuResponseMap(respModel.messagePayload())));
+          session.set('botMessages', botMessages);
+          session.set('botMenuResponseMap', Object.assign(botMenuResponseMap || {}, self.menuResponseMap(respModel.messagePayload())));
           let messageToAlexa = messageModelUtil.convertRespToText(respModel.messagePayload());
-          logger.info("Message to Alexa (navigable):", messageToAlexa)
+          logger.info('Message to Alexa (navigable):', messageToAlexa)
           alexa_res.say(messageToAlexa);
         };
 
@@ -204,7 +204,7 @@ class AlexaIntegration {
               if (!respondedToAlexa) {
                 navigableResponseToAlexa(resp);
               } else {
-                logger.info("Already processed response");
+                logger.info('Already processed response');
                 return;
               }
               if (metadata.waitForMoreResponsesMs) {
@@ -224,8 +224,8 @@ class AlexaIntegration {
             logger.info('Channel used on send: ', channeloc);
             self.webhook.send(message, channeloc)
               .catch(err => {
-                logger.info("Failed sending message to Bot");
-                alexa_res.say("Failed sending message to Bot.  Please review your bot configuration.");
+                logger.info('Failed sending message to Bot');
+                alexa_res.say('Failed sending message to Bot.  Please review your bot configuration.');
                 reject(err);
                 PubSub.unsubscribe(userIdTopic);
               })
@@ -241,20 +241,20 @@ class AlexaIntegration {
         };
 
         var handleInput = function (input) {
-          var botMenuResponseMap = session.get("botMenuResponseMap");
+          var botMenuResponseMap = session.get('botMenuResponseMap');
           if (typeof botMenuResponseMap !== 'object') {
             botMenuResponseMap = {};
           }
           var menuResponse = textUtil.approxTextMatch(input, _.keys(botMenuResponseMap), true, true, .7);
-          var botMessages = session.get("botMessages");
+          var botMessages = session.get('botMessages');
           //if command is a menu action
           if (menuResponse) {
             var menu = botMenuResponseMap[menuResponse.item];
             // if it is global action or message level action
             if (['global', 'message'].includes(menu.type)) {
               var action = menu.action;
-              session.set("botMessages", []);
-              session.set("botMenuResponseMap", {});
+              session.set('botMessages', []);
+              session.set('botMenuResponseMap', {});
               if (action.type === 'postback') {
                 var postbackMsg = MessageModel.postbackConversationMessage(action.postback);
                 return sendMessageToBot(postbackMsg);
@@ -287,10 +287,10 @@ class AlexaIntegration {
                   });
                 }
                 if (selectedMessage) {
-                  //session.set("botMessages", [selectedMessage]);
-                  session.set("botMenuResponseMap", self.menuResponseMap(selectedMessage, selectedCard));
+                  //session.set('botMessages', [selectedMessage]);
+                  session.set('botMenuResponseMap', self.menuResponseMap(selectedMessage, selectedCard));
                   let messageToAlexa = messageModelUtil.cardToText(selectedCard, 'Card');
-                  logger.info("Message to Alexa (card):", messageToAlexa)
+                  logger.info('Message to Alexa (card):', messageToAlexa)
                   alexa_res.say(messageToAlexa);
                   return alexa_res.send();
                 }
@@ -302,14 +302,14 @@ class AlexaIntegration {
                 returnMessage = _.clone(menu.action.value.value);
               }
               if (returnMessage) {
-                //session.set("botMessages", [returnMessage]);
-                session.set("botMenuResponseMap", _.reduce(botMessages, function(memo, msg){
+                //session.set('botMessages', [returnMessage]);
+                session.set('botMenuResponseMap', _.reduce(botMessages, function(memo, msg){
                   return Object.assign(memo, self.menuResponseMap(msg));
                 }, {}));
-                //session.set("botMenuResponseMap", menuResponseMap(returnMessage));
+                //session.set('botMenuResponseMap', menuResponseMap(returnMessage));
                 _.each(botMessages, function(msg){
                   let messageToAlexa = messageModelUtil.convertRespToText(msg);
-                  logger.info("Message to Alexa (return from card):", messageToAlexa);
+                  logger.info('Message to Alexa (return from card):', messageToAlexa);
                   alexa_res.say(messageToAlexa);
                 })
                 return alexa_res.send();
@@ -331,32 +331,32 @@ class AlexaIntegration {
     }
     );
 
-    this.alexa.intent("AMAZON.StopIntent", {}, (alexa_req, alexa_res) => {
-      alexa_res.say("Goodbye");
+    this.alexa.intent('AMAZON.StopIntent', {}, (alexa_req, alexa_res) => {
+      alexa_res.say('Goodbye');
       alexa_res.shouldEndSession(true);
     });
 
     this.alexa.launch((alexa_req, alexa_res) => {
       var session = alexa_req.getSession();
-      session.set("startTime", Date.now());
-      alexa_res.say("Welcome to SingleBot");
+      session.set('startTime', Date.now());
+      alexa_res.say('Welcome to SingleBot');
     });
 
     this.alexa.pre = (alexa_req, alexa_res/*, alexa_type*/) => {
       logger.debug(alexa_req.data.session.application.applicationId);
       const amzn_appId = this.env.AMZN_SKILL_ID;
       if (alexa_req.data.session.application.applicationId != amzn_appId) {
-        logger.error("fail as application id is not valid");
-        alexa_res.fail("Invalid applicationId");
+        logger.error('fail as application id is not valid');
+        alexa_res.fail('Invalid applicationId');
       }
       logger.info(JSON.stringify(alexa_req.data, null, 4));
       if (!metadata.channelUrl || !metadata.channelSecretKey) {
-        var message = "The singleBot cannot respond.  Please check the channel and secret key configuration.";
+        var message = 'The singleBot cannot respond.  Please check the channel and secret key configuration.';
         alexa_res.fail(message);
         logger.info(message);
       }
     };
-    //alexa_app.express(alexaRouter, "/", true);
+    //alexa_app.express(alexaRouter, '/', true);
     this.alexa.express({router: this.router, checkCert: false});
     return this;
   }
