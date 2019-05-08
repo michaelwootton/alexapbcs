@@ -124,9 +124,30 @@ class AlexaIntegration {
         }
         session.set("userId", userId);
       }
-	  this.logger.info('Got query : ', alexa_req.query);
-    this.logger.info('qual a conversation total : ', JSON.stringify(alexa_req));
-	  
+	    this.logger.info('Got locale : ', alexa_req.locale);
+      this.logger.info('qual a conversation total : ', JSON.stringify(alexa_req));
+      userlocale = alexa_req.locale;
+      // set initial channel to portuguese CHATBOT	
+      var channeloc= {
+        url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5',
+        secret: 'uqalyRoRzS1LvzorZCpu7BYANLzvYJ6T',
+      };   
+      if (userlocale === 'pt-BR') {
+        channeloc= {
+          url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5',
+          secret: 'uqalyRoRzS1LvzorZCpu7BYANLzvYJ6T',
+        };
+        logger.info('Channel being used: ', channeloc);
+      }
+  // if Spanish - set channel to Spanish CHATBOT	
+      else if ((userlocale === 'es-ES') || (userlocale === 'es-MX')) {
+        channeloc = {
+          url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/26d19683-0bcd-4bbb-8d0e-f125529039ec',
+           secret: 'Wv6cSP9yyGk9PAMoE6YxWGa1AWk3Eebz',
+        };
+        logger.info('Channel being used: ', channeloc);
+      }  
+
       alexa_res.shouldEndSession(false);
       if (userId && command) {  
         const userIdTopic = userId;
@@ -198,7 +219,7 @@ class AlexaIntegration {
             PubSub.subscribe(userIdTopic, commandResponse);
             // use webhook client to send
             const message = _.assign({ userId, messagePayload }, additionalProperties);
-            self.webhook.send(message)
+            self.webhook.send(message, channeloc)
               .catch(err => {
                 logger.info("Failed sending message to Bot");
                 alexa_res.say("Failed sending message to Bot.  Please review your bot configuration.");

@@ -1,6 +1,6 @@
 {
   "env": {
-    "AMZN_SKILL_ID": "amzn1.ask.skill.XXX",
+    "AMZN_SKILL_ID": "amzn1.ask.skill.7d0b4539-cd2a-4298-9693-e0806757cbbc",
     "WEBHOOK_CHANNEL_URL": "https://.../connectors/...",
     "WEBHOOK_SECRET": "XXX-YYY-ZZZ",
     "WEBHOOK_WAIT_MS": 200
