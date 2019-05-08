@@ -59,15 +59,15 @@ class AlexaIntegration {
       switch(locale) {
         case 'es': {
           // ...
-           url = 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/39b5e36b-dbdc-49f6-923a-ec8fc3b565b6';
-           secret= 'CIhEYKrRu26ftxRysC1C3d0rn8sT2odo';
+           url = 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/26d19683-0bcd-4bbb-8d0e-f125529039ec';
+           secret= 'Wv6cSP9yyGk9PAMoE6YxWGa1AWk3Eebz';
            this.logger.info('Channel being used-ES : ', url);		  
            break;
         }   
         case 'pt': {
           // ...
-           url= 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/291868e7-1eeb-490d-9fe5-c84362f34492';
-           secret= 'BpZMnlY64tzVoBZHRtcgNvvs90ZE8lN6';
+           url= 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5';
+           secret= 'uqalyRoRzS1LvzorZCpu7BYANLzvYJ6T';
            this.logger.info('Channel being used-PT : ', url);		  
           break;
         }  
@@ -129,7 +129,7 @@ class AlexaIntegration {
         session.set("userId", userId);
       }
 	  this.logger.info('Got query : ', alexa_req.query);
-      this.logger.info('qual a conversation total : ', JSON.stringify(alexa_req));
+    this.logger.info('qual a conversation total : ', JSON.stringify(alexa_req));
 	  
       alexa_res.shouldEndSession(false);
       if (userId && command) {
