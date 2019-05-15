@@ -531,15 +531,15 @@ class AlexaIntegration {
       logger.info(JSON.stringify(alexa_req.data, null, 4));
       userlocale = alexa_req.data.request.locale;
       if (!metadata.channelUrl || !metadata.channelSecretKey) {
-        var message = 'The singleBot cannot respond.  Please check the channel and secret key configuration.';
+        var message = 'The singleBot cannot respond.  Please check the channel and secret key configuration';
         if (userlocale == 'pt-BR') {
-          var message = 'O Alexa Bot não consegue responder. Por favor verifique a configuração do Canal e da chave secreta.';
+          var message = 'O Alexa Bot não consegue responder. Por favor verifique a configuração do Canal e da chave secreta';
         }
         else if (userlocale.substring(0,2) == 'en') {
-          var message = "The singleBot cannot respond.  Please check the channel and secret key configuration."; 
+          var message = "The singleBot cannot respond.  Please check the channel and secret key configuration"; 
         }
         else if (userlocale.substring(0,2) == 'es')  {
-          var message = 'El Alexa Bot no consigue contestar. Por favor verifique la configuración del canal y de la llave secreta.';
+          var message = 'El Alexa Bot no consigue contestar. Por favor verifique la configuración del canal y de la llave secreta';
         }  			                 
         alexa_res.fail(message);
         logger.info(message);
@@ -612,7 +612,7 @@ function trailingPeriod(text) {
   if (!text || (typeof text !== 'string')) {
     return '';
   }
-  return ((text.trim().endsWith('.') || text.trim().endsWith('?') || text.trim().endsWith(',')) ? text.trim() + ' ' : text.trim() + '. ');
+  return ((text.trim().endsWith('.') || text.trim().endsWith('?') || text.trim().endsWith(',')) ? text.trim() + ' ' : text.trim() + ' ');
 }
 
 function actionToText(action, actionPrefix) {
