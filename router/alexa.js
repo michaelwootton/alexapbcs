@@ -508,6 +508,7 @@ class AlexaIntegration {
     this.alexa.launch((alexa_req, alexa_res) => {
       var session = alexa_req.getSession();
       session.set('startTime', Date.now());
+      userlocale = alexa_req.data.request.locale;
       alexa_res.shouldEndSession(false);
       if (userlocale == 'pt-BR') {
         alexa_res.say('Bemvindo ao Alexa Bot');
@@ -528,6 +529,7 @@ class AlexaIntegration {
         alexa_res.fail('Invalid applicationId');
       }
       logger.info(JSON.stringify(alexa_req.data, null, 4));
+      userlocale = alexa_req.data.request.locale;
       if (!metadata.channelUrl || !metadata.channelSecretKey) {
         var message = 'The singleBot cannot respond.  Please check the channel and secret key configuration.';
         if (userlocale == 'pt-BR') {
