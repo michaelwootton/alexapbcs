@@ -354,7 +354,7 @@ class AlexaIntegration {
 
     this.alexa.intent('AMAZON.CancelIntent', {}, (alexa_req, alexa_res) => {
       logger.info('\n Entrou no STOPINTENT');
-      var command = alexa_req.slot('command');
+      var command = 'cancel';
       var session = alexa_req.getSession();
       let userId = session.get('userId');
       if (!userId) {
