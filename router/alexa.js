@@ -352,7 +352,7 @@ class AlexaIntegration {
       //return false;
     });
 
-    this.alexa.intent('AMAZON.StopIntent', {}, (alexa_req, alexa_res) => {
+    this.alexa.intent('AMAZON.CancelIntent', {}, (alexa_req, alexa_res) => {
       logger.info('\n Entrou no STOPINTENT');
       var command = alexa_req.slot('command');
       var session = alexa_req.getSession();
@@ -388,7 +388,7 @@ class AlexaIntegration {
         logger.info('Channel being used: ', channeloc);
       }  
 
-      alexa_res.shouldEndSession(false);
+      alexa_res.shouldEndSession(true);
       if (userId && command) {  
         const userIdTopic = userId;
         var respondedToAlexa = false;
