@@ -508,7 +508,7 @@ class AlexaIntegration {
     this.alexa.launch((alexa_req, alexa_res) => {
       var session = alexa_req.getSession();
       session.set('startTime', Date.now());
-
+      alexa_res.shouldEndSession(false);
       if (userlocale == 'pt-BR') {
         alexa_res.say('Bemvindo ao Alexa Bot');
       }
