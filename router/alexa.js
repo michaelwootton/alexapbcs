@@ -52,41 +52,41 @@ class AlexaIntegration {
     // init client
     this.webhook = new WebhookClient({ 
     // determine the channel config on incoming request from ODA
-    channel: (req) => {
-      this.logger.info('Here', req.params);
-      const { locale } = req.params;
-      var url = '';
-      var secret = '';
+      channel: (req) => {
+        this.logger.info('Here', req.params);
+        const { locale } = req.params;
+        var url = '';
+        var secret = '';
 
-      switch(locale) {
-        case 'es': {
-          // ...
-           url = 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/26d19683-0bcd-4bbb-8d0e-f125529039ec';
-           secret= 'Wv6cSP9yyGk9PAMoE6YxWGa1AWk3Eebz';
-           this.logger.info('Channel being used-ES : ', url);		  
+        switch(locale) {
+          case 'es': {
+           // ...
+            url = 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/26d19683-0bcd-4bbb-8d0e-f125529039ec';
+            secret= 'Wv6cSP9yyGk9PAMoE6YxWGa1AWk3Eebz';
+            this.logger.info('Channel being used-ES : ', url);		  
+            break;
+          }   
+          case 'pt': {
+           // ...
+            url= 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5';
+            secret= 'uqalyRoRzS1LvzorZCpu7BYANLzvYJ6T';
+            this.logger.info('Channel being used-PT : ', url);		  
            break;
-        }   
-        case 'pt': {
-          // ...
-           url= 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5';
-           secret= 'uqalyRoRzS1LvzorZCpu7BYANLzvYJ6T';
-           this.logger.info('Channel being used-PT : ', url);		  
-          break;
-        }  
-      }
-      return {
-        url,
-        secret,
-      };
-    },
-  });
+          }  
+        }
+        return {
+         url,
+         secret,
+        };
+      },
+    });
 
     
     // add webhook receiver at the configured endpoint '/messages'
     this.logger.info('Bot webhook outbound messages: /alexa${this.endpoints.webhook}');
     this.router.post('/message/:locale', this.webhook.receiver((req, res) => {
       const { locale } = req.params;
-	  res.send(200);
+      res.send(200);
       const body = req.body;
       const userId = body.userId;
       this.logger.info('Publishing to', userId);
@@ -130,7 +130,7 @@ class AlexaIntegration {
       logger.info('qual a conversation total : ', JSON.stringify(alexa_req));
       userlocale = alexa_req.data.request.locale;
       //as the Chatbot has only resource Bundles for es-Es or es-419 (Mexico), transform to es-419
-      if (userlocale === 'es-MX') {userlocale = 'es-419'};
+      if (userlocale.substring(0,2) === 'es') {userlocale = 'es-419'};
       // set initial channel to portuguese CHATBOT	
       var channeloc= {
         url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5',
@@ -144,7 +144,7 @@ class AlexaIntegration {
         logger.info('Channel being used: ', channeloc);
       }
   // if Spanish - set channel to Spanish CHATBOT	
-      else if ((userlocale === 'es-ES') || (userlocale === 'es-MX') || (userlocale === 'es-419')) {
+      else if (userlocale.substring(0,2) === 'es') {
         channeloc = {
           url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/26d19683-0bcd-4bbb-8d0e-f125529039ec',
            secret: 'Wv6cSP9yyGk9PAMoE6YxWGa1AWk3Eebz',
@@ -233,10 +233,10 @@ class AlexaIntegration {
                 if (userlocale == 'pt-BR') {
                     alexa_res.say('Falhou enviando mensagem para o Bot.  Por favor revise as configurações do seu BOT.');
                 }
-                else if ((userlocale == 'en-US') || (userlocale == 'en-GB')) {
+                else if (userlocale.substring(0,2) == 'en') {
                     alexa_res.say('Failed sending a message to the BOT. Please review the configurations of your BOT.'); 
                 }
-                else if ((userlocale == 'es-US') || (userlocale == 'es-MX') || (userlocale == 'es-ES') || (userlocale == 'es-419')) {
+                else if (userlocale.substring(0,2) == 'es') {
                     alexa_res.say('El envío de mensaje para el BOT falló.  Por favor revise las configuraciones de su BOT.');
                 }                  
                 reject(err);
@@ -254,6 +254,7 @@ class AlexaIntegration {
         };
 
         var handleInput = function (input) {
+          logger.info('\n Entrou no handleinput');
           var botMenuResponseMap = session.get('botMenuResponseMap');
           if (typeof botMenuResponseMap !== 'object') {
             botMenuResponseMap = {};
@@ -336,35 +337,171 @@ class AlexaIntegration {
         return handleInput(command);
       } else {
         _.defer(function () {
-          alexa_res.say("I don't understand. Could you please repeat what you want?");
           if (userlocale == 'pt-BR') {
             alexa_res.say('Não compreendo, Voce poderia por favor repetir o que deseja? ');
           }
-          else if ((userlocale == 'en-US') || (userlocale == 'en-GB')) {
+          else if (userlocale.substring(0,2) == 'en') {
             alexa_res.say("I don't understand. Could you please repeat what you want?"); 
           }
-          else if ((userlocale == 'es-US') || (userlocale == 'es-MX') || (userlocale == 'es-ES') || (userlocale == 'es-419')) {
+          else if (userlocale.substring(0,2) == 'es')  {
             alexa_res.say('No compreendo, Podría por favor repetir lo que desea?');
           }  			          
           //alexa_res.send();
         });
       }
       //return false;
-    }
-    );
+    });
 
     this.alexa.intent('AMAZON.StopIntent', {}, (alexa_req, alexa_res) => {
-      alexa_res.say('Goodbye');
-      if (userlocale == 'pt-BR') {
-        alexa_res.say('Adeus');
+      var command = alexa_req.slot('command');
+      var session = alexa_req.getSession();
+      let userId = session.get('userId');
+      if (!userId) {
+        userId = session.details.user.userId;
+        if (!userId) {
+          userId = self.randomIntInc(1000000, 9999999).toString();
+        }
+        session.set('userId', userId);
       }
-      else if ((userlocale == 'en-US') || (userlocale == 'en-GB')) {
-        alexa_res.say("Godbye"); 
+      userlocale = alexa_req.data.request.locale;
+      //as the Chatbot has only resource Bundles for es-Es or es-419 (Mexico), transform to es-419
+      if (userlocale.substring(0,2) === 'es') {userlocale = 'es-419'};
+      // set initial channel to portuguese CHATBOT	
+      var channeloc= {
+        url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5',
+        secret: 'uqalyRoRzS1LvzorZCpu7BYANLzvYJ6T',
+      };   
+      if (userlocale === 'pt-BR') {
+        channeloc= {
+          url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5',
+          secret: 'uqalyRoRzS1LvzorZCpu7BYANLzvYJ6T',
+        };
+        logger.info('Channel being used: ', channeloc);
       }
-      else if ((userlocale == 'es-US') || (userlocale == 'es-MX') || (userlocale == 'es-ES') || (userlocale == 'es-419')) {
-        alexa_res.say('Adios');
-      }  			                      
-      alexa_res.shouldEndSession(true);
+  // if Spanish - set channel to Spanish CHATBOT	
+      else if (userlocale.substring(0,2) === 'es') {
+        channeloc = {
+          url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/26d19683-0bcd-4bbb-8d0e-f125529039ec',
+           secret: 'Wv6cSP9yyGk9PAMoE6YxWGa1AWk3Eebz',
+        };
+        logger.info('Channel being used: ', channeloc);
+      }  
+
+      alexa_res.shouldEndSession(false);
+      if (userId && command) {  
+        const userIdTopic = userId;
+        var respondedToAlexa = false;
+        var additionalProperties = {
+          profile: {
+            clientType: 'alexa',
+			      locale: userlocale
+          }
+        };
+        var sendToAlexa = (resolve) => {
+          if (!respondedToAlexa) {
+            respondedToAlexa = true;
+            logger.info('Prepare to send to Alexa');
+            //alexa_res.send();
+            resolve();
+            PubSub.unsubscribe(userIdTopic);
+          } else {
+            logger.info('Already sent response');
+          }
+        };
+          // compose text response to alexa, and also save botMessages and botMenuResponseMap to alexa session so they can be used to control menu responses next
+        var navigableResponseToAlexa = (resp) => {
+          var respModel;
+          if (resp.messagePayload) {
+            respModel = new MessageModel(resp.messagePayload);
+          } else {
+            // handle 1.0 webhook format as well
+            respModel = new MessageModel(resp);
+          }
+          var botMessages = session.get('botMessages');
+          if (!Array.isArray(botMessages)) {
+            botMessages = [];
+          }
+          var botMenuResponseMap = session.get('botMenuResponseMap');
+          if (typeof botMenuResponseMap !== 'object') {
+            botMenuResponseMap = {};
+          }
+          botMessages.push(respModel.messagePayload());
+          session.set('botMessages', botMessages);
+          session.set('botMenuResponseMap', Object.assign(botMenuResponseMap || {}, self.menuResponseMap(respModel.messagePayload())));
+          logger.info('Message to Alexa (antes de converter para texto):', respModel.messagePayload());
+          let messageToAlexa = convertRespToText(respModel.messagePayload());
+          logger.info('Message to Alexa (navigable):', messageToAlexa);
+          alexa_res.say(messageToAlexa);
+        };
+
+        var sendMessageToBot = (messagePayload) => {
+          logger.info('Creating new promise for', messagePayload);
+          return new Promise(function(resolve, reject){
+            var commandResponse = function (msg, data) {
+              logger.info('Received callback message from webhook channel');
+              var resp = data;
+              logger.info('Parsed Message Body:', resp);
+              if (!respondedToAlexa) {
+                navigableResponseToAlexa(resp);
+              } else {
+                logger.info('Already processed response');
+                return;
+              }
+              if (metadata.waitForMoreResponsesMs) {
+                _.delay(function () {
+                  sendToAlexa(resolve, reject);
+                }, metadata.waitForMoreResponsesMs);
+              } else {
+                sendToAlexa(resolve, reject);
+              }
+              
+            };
+            // var token = PubSub.subscribe(userIdTopic, commandResponse);
+            PubSub.subscribe(userIdTopic, commandResponse);
+            // use webhook client to send
+            const message = _.assign({ userId, messagePayload }, additionalProperties);
+            logger.info('Message sent to Chatbot: ', message);
+            logger.info('Channel used on send: ', channeloc);
+            self.webhook.send(message, channeloc)
+            .catch(err => {
+                logger.info('Failed sending message to Bot');
+                if (userlocale == 'pt-BR') {
+                    alexa_res.say('Falhou enviando mensagem para o Bot.  Por favor revise as configurações do seu BOT.');
+                }
+                else if (userlocale.substring(0,2) == 'en') {
+                    alexa_res.say('Failed sending a message to the BOT. Please review the configurations of your BOT.'); 
+                }
+                else if (userlocale.substring(0,2) == 'es') {
+                    alexa_res.say('El envío de mensaje para el BOT falló.  Por favor revise las configuraciones de su BOT.');
+                }                  
+                reject(err);
+                PubSub.unsubscribe(userIdTopic);
+            })
+
+          });
+        };
+
+        var handleInput = function (input) {
+            var commandMsg = MessageModel.textConversationMessage('cancel');
+            return sendMessageToBot(commandMsg);
+          }
+        return handleInput(command);
+      } else {
+        _.defer(function () {
+          if (userlocale == 'pt-BR') {
+            alexa_res.say('Não compreendo, Voce poderia por favor repetir o que deseja? ');
+          }
+          else if (userlocale.substring(0,2) == 'en') {
+            alexa_res.say("I don't understand. Could you please repeat what you want?"); 
+          }
+          else if (userlocale.substring(0,2) == 'es')  {
+            alexa_res.say('No compreendo, Podría por favor repetir lo que desea?');
+          }  			          
+          //alexa_res.send();
+        });
+      }
+      //return false;
+    
     });
 
     this.alexa.launch((alexa_req, alexa_res) => {
@@ -395,10 +532,10 @@ class AlexaIntegration {
         if (userlocale == 'pt-BR') {
           var message = 'O Alexa Bot não consegue responder. Por favor verifique a configuração do Canal e da chave secreta.';
         }
-        else if ((userlocale == 'en-US') || (userlocale == 'en-GB')) {
+        else if (userlocale.substring(0,2) == 'en') {
           var message = "The singleBot cannot respond.  Please check the channel and secret key configuration."; 
         }
-        else if ((userlocale == 'es-US') || (userlocale == 'es-MX') || (userlocale == 'es-ES') || (userlocale == 'es-419')) {
+        else if (userlocale.substring(0,2) == 'es')  {
           var message = 'El Alexa Bot no consigue contestar. Por favor verifique la configuración del canal y de la llave secreta.';
         }  			                 
         alexa_res.fail(message);
