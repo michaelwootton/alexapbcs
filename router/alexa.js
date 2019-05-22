@@ -189,7 +189,7 @@ class AlexaIntegration {
           if (typeof botMenuResponseMap !== 'object') {
             botMenuResponseMap = {};
           }
-          if (typeof resp.body.messagePayload.channelExtensions === 'undefined') {
+          if (typeof resp.messagePayload.channelExtensions === 'undefined') {
             alexa_res.shouldEndSession(false);
           }
           else {
@@ -430,7 +430,7 @@ class AlexaIntegration {
           if (typeof botMenuResponseMap !== 'object') {
             botMenuResponseMap = {};
           }
-          if (typeof resp.body.messagePayload.channelExtensions === 'undefined') {
+          if (typeof resp.messagePayload.channelExtensions === 'undefined') {
             alexa_res.shouldEndSession(false);
           }
           else {
