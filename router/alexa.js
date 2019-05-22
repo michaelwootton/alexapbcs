@@ -136,7 +136,7 @@ class AlexaIntegration {
         url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5',
         secret: 'uqalyRoRzS1LvzorZCpu7BYANLzvYJ6T',
       };   
-      if (userlocale === 'pt-BR') {
+      if (userlocale.substring(0,2) === 'pt') {
         channeloc= {
           url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5',
           secret: 'uqalyRoRzS1LvzorZCpu7BYANLzvYJ6T',
@@ -152,7 +152,6 @@ class AlexaIntegration {
         logger.info('Channel being used: ', channeloc);
       }  
 
-      alexa_res.shouldEndSession(false);
       if (userId && command) {  
         const userIdTopic = userId;
         var respondedToAlexa = false;
@@ -190,6 +189,12 @@ class AlexaIntegration {
           if (typeof botMenuResponseMap !== 'object') {
             botMenuResponseMap = {};
           }
+          if (typeof resp.body.messagePayload.channelExtensions === 'undefined') {
+            alexa_res.shouldEndSession(false);
+          }
+          else {
+            alexa_res.shouldEndSession(true);
+          }          
           botMessages.push(respModel.messagePayload());
           session.set('botMessages', botMessages);
           session.set('botMenuResponseMap', Object.assign(botMenuResponseMap || {}, self.menuResponseMap(respModel.messagePayload())));
@@ -230,7 +235,7 @@ class AlexaIntegration {
             self.webhook.send(message, channeloc)
               .catch(err => {
                 logger.info('Failed sending message to Bot');
-                if (userlocale == 'pt-BR') {
+                if (userlocale.substring(0,2) == 'pt') {
                     alexa_res.say('Falhou enviando mensagem para o Bot.  Por favor revise as configurações do seu BOT.');
                 }
                 else if (userlocale.substring(0,2) == 'en') {
@@ -337,7 +342,7 @@ class AlexaIntegration {
         return handleInput(command);
       } else {
         _.defer(function () {
-          if (userlocale == 'pt-BR') {
+          if (userlocale.substring(0,2) == 'pt') {
             alexa_res.say('Não compreendo, Voce poderia por favor repetir o que deseja? ');
           }
           else if (userlocale.substring(0,2) == 'en') {
@@ -372,7 +377,7 @@ class AlexaIntegration {
         url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5',
         secret: 'uqalyRoRzS1LvzorZCpu7BYANLzvYJ6T',
       };   
-      if (userlocale === 'pt-BR') {
+      if (userlocale.substring(0,2) === 'pt') {
         channeloc= {
           url: 'http://2b2d3e3d.ngrok.io/connectors/v1/tenants/chatbot-tenant/listeners/webhook/channels/3d51ca51-ca5a-4802-bcb2-2b5e52d9e6b5',
           secret: 'uqalyRoRzS1LvzorZCpu7BYANLzvYJ6T',
@@ -388,7 +393,6 @@ class AlexaIntegration {
         logger.info('Channel being used: ', channeloc);
       }  
 
-      alexa_res.shouldEndSession(true);
       if (userId && command) {  
         const userIdTopic = userId;
         var respondedToAlexa = false;
@@ -426,6 +430,13 @@ class AlexaIntegration {
           if (typeof botMenuResponseMap !== 'object') {
             botMenuResponseMap = {};
           }
+          if (typeof resp.body.messagePayload.channelExtensions === 'undefined') {
+            alexa_res.shouldEndSession(false);
+          }
+          else {
+            alexa_res.shouldEndSession(true);
+          }
+          		
           botMessages.push(respModel.messagePayload());
           session.set('botMessages', botMessages);
           session.set('botMenuResponseMap', Object.assign(botMenuResponseMap || {}, self.menuResponseMap(respModel.messagePayload())));
@@ -466,13 +477,14 @@ class AlexaIntegration {
             self.webhook.send(message, channeloc)
             .catch(err => {
                 logger.info('Failed sending message to Bot');
-                if (userlocale == 'pt-BR') {
+                alexa_res.shouldEndSession(true);
+                if ( userlocale.substring(0,2) === 'pt') {
                     alexa_res.say('Falhou enviando mensagem para o Bot.  Por favor revise as configurações do seu BOT.');
                 }
-                else if (userlocale.substring(0,2) == 'en') {
+                else if (userlocale.substring(0,2) === 'en') {
                     alexa_res.say('Failed sending a message to the BOT. Please review the configurations of your BOT.'); 
                 }
-                else if (userlocale.substring(0,2) == 'es') {
+                else if (userlocale.substring(0,2) === 'es') {
                     alexa_res.say('El envío de mensaje para el BOT falló.  Por favor revise las configuraciones de su BOT.');
                 }                  
                 reject(err);
@@ -489,13 +501,14 @@ class AlexaIntegration {
         return handleInput(command);
       } else {
         _.defer(function () {
-          if (userlocale == 'pt-BR') {
+          alexa_res.shouldEndSession(false);
+          if (userlocale.substring(0,2) === 'pt-BR') {
             alexa_res.say('Não compreendo, Voce poderia por favor repetir o que deseja? ');
           }
-          else if (userlocale.substring(0,2) == 'en') {
+          else if (userlocale.substring(0,2) === 'en') {
             alexa_res.say("I don't understand. Could you please repeat what you want?"); 
           }
-          else if (userlocale.substring(0,2) == 'es')  {
+          else if (userlocale.substring(0,2) === 'es')  {
             alexa_res.say('No compreendo, Podría por favor repetir lo que desea?');
           }  			          
           //alexa_res.send();
@@ -510,13 +523,13 @@ class AlexaIntegration {
       session.set('startTime', Date.now());
       userlocale = alexa_req.data.request.locale;
       alexa_res.shouldEndSession(false);
-      if (userlocale == 'pt-BR') {
+      if (userlocale.substring(0,2) === 'pt-BR') {
         alexa_res.say('Bemvindo ao Alexa Bot');
       }
-      else if ((userlocale == 'en-US') || (userlocale == 'en-GB')) {
+      else if (userlocale.substring(0,2) === 'en') {
         alexa_res.say("Welcome to Alexa Bot"); 
       }
-      else if ((userlocale == 'es-US') || (userlocale == 'es-MX') || (userlocale == 'es-ES') || (userlocale == 'es-419')) {
+      else if (userlocale.substring(0,2) === 'es') {
         alexa_res.say('Bienvenido a Alexa Bot');
       }  			                
     });
@@ -526,21 +539,32 @@ class AlexaIntegration {
       const amzn_appId = this.env.AMZN_SKILL_ID;
       if (alexa_req.data.session.application.applicationId != amzn_appId) {
         logger.error('fail as application id is not valid');
-        alexa_res.fail('Invalid applicationId');
+        alexa_res.shouldEndSession(true);
+        
+        if (userlocale.substring(0,2) === 'pt') {
+          alexa_res.fail('Código de Aplicação Inválido');
+        }
+        else if (userlocale.substring(0,2) === 'en') {
+          alexa_res.fail('Invalid applicationId'); 
+        }
+        else if (userlocale.substring(0,2) === 'es')  {
+          alexa_res.fail('Código de Aplicación Inválido');
+        }  			                 
       }
       logger.info(JSON.stringify(alexa_req.data, null, 4));
       userlocale = alexa_req.data.request.locale;
       if (!metadata.channelUrl || !metadata.channelSecretKey) {
         var message = 'The singleBot cannot respond.  Please check the channel and secret key configuration';
-        if (userlocale == 'pt-BR') {
+        if (userlocale.substring(0,2) === 'pt') {
           var message = 'O Alexa Bot não consegue responder. Por favor verifique a configuração do Canal e da chave secreta';
         }
-        else if (userlocale.substring(0,2) == 'en') {
+        else if (userlocale.substring(0,2) === 'en') {
           var message = "The singleBot cannot respond.  Please check the channel and secret key configuration"; 
         }
-        else if (userlocale.substring(0,2) == 'es')  {
+        else if (userlocale.substring(0,2) === 'es')  {
           var message = 'El Alexa Bot no consigue contestar. Por favor verifique la configuración del canal y de la llave secreta';
         }  			                 
+        alexa_res.shouldEndSession(true);
         alexa_res.fail(message);
         logger.info(message);
       }
@@ -625,16 +649,49 @@ function actionToText(action, actionPrefix) {
     case 'postback':
       break;
     case 'call':
-      actionText += 'Call the phone number ' + action.phoneNumber;
+        if (userlocale.substring(0,2) === 'pt') {
+          actionText += 'Chame o fone de numero ' + action.phoneNumber;
+        }
+        else if (userlocale.substring(0,2) === 'es') {
+          actionText += 'Llame el telefono con numero ' + action.phoneNumber;
+        }
+        else if (userlocale.substring(0,2) === 'en')  {
+          actionText += 'Call the telephone with number ' + action.phoneNumber;
+        }			                 
+      
       break;
     case 'url':
-      actionText += 'Open the Url ' + action.url;
+        if (userlocale.substring(0,2) === 'pt-BR') {
+          actionText += 'Abra a URL ' + action.url;
+        }
+        else if (userlocale.substring(0,2) === 'es-ES')  {
+          actionText += 'Abra el sitio URL ' + action.url;
+        }
+        else if (userlocale.substring(0,2) === 'en-US')  {
+          actionText += 'Open the URL ' + action.url;
+        }
       break;
     case 'share':
-      actionText += 'Share the message';
+        if (userlocale.substring(0,2) === 'pt') {
+          actionText += 'Compartilhe a mensagem ';
+        }
+        else if (userlocale.substring(0,2) === 'es') {
+          actionText += 'Comparte el mensaje ';
+        }  
+        else if (userlocale.substring(0,2) === 'en') {
+          actionText += 'Share the Message ';
+        }  
       break;
     case 'location':
-      actionText += 'Share the location';
+        if (userlocale.substring(0,2) === 'pt') {
+          actionText += 'Compartilhe a localização ';
+        }
+        else if (userlocale.substring(0,2) === 'es')  {
+          actionText += 'Comparte la ubicación ';
+        }  
+        else if (userlocale.substring(0,2) === 'en')  {
+          actionText += 'Share the location ';        
+        } 
       break;
     default:
       break;
@@ -682,18 +739,45 @@ function cardToText(card, cardPrefix) {
     cardText = trailingPeriod(cardText + card.description);
   }
   if (card.actions && card.actions.length > 0) {
-    cardText = cardText + actionsToText(card.actions, 'The following actions are available for this card: ');
-    cardText = cardText + ' Or choose Return';
+    if (userlocale.substring(0,2) === 'pt') {
+      cardText = cardText + actionsToText(card.actions, 'As seguintes ações estão disponíveis para estar card: ');
+      cardText = cardText + ' O escoja Return';
+    }
+    else if (userlocale.substring(0,2) === 'es')  {
+      cardText = cardText + actionsToText(card.actions, 'Las seguientes acciones estan disponibles para este card: ');
+      cardText = cardText + ' O escoja Return';
+    }  
+    else if (userlocale.substring(0,2) === 'en')  {
+      cardText = cardText + actionsToText(card.actions, 'The following actions are available for this card: ');
+      cardText = cardText + ' Or choose Return';      
+    }     
   }
   else {
-    cardText = cardText + ' You could choose Return';
+    if (userlocale.substring(0,2) === 'pt') {
+      cardText = cardText + ' Poderia escolher Return';
+    }
+    else if (userlocale.substring(0,2) === 'es')  {
+      cardText = cardText + ' Podrias esocojer Return';
+    }  
+    else if (userlocale.substring(0,2) === 'en')  {
+      cardText = cardText + ' You could choose Return';    
+    }     
   }
   return cardText;
 }
 
 function cardsSummaryToText(cards, prompt) {
-  var cardsText = prompt || 'You can choose from the following cards for more information: ';
-  cards.forEach(function (card, index) {
+
+    if (userlocale.substring(0,2) === 'pt') {
+      var cardsText = prompt || 'Voce pode escolher dos seguintes cards para mais informação: ';  
+          }
+    else if (userlocale.substring(0,2) === 'es')  {
+      var cardsText = prompt || 'Tu podrias esojer de los seguinentes cards para más informaciones: ';  
+    }  
+    else if (userlocale.substring(0,2) === 'en')  {
+      var cardsText = prompt || 'You can choose from the following cards for more information: ';  
+    }  
+    cards.forEach(function (card, index) {
     cardsText = cardsText + 'Card ' + card.title;
     if (index < cards.length - 1) {
       cardsText = cardsText + ', ';
